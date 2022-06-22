@@ -17,22 +17,23 @@ class AlienInvasion:
 
         self.ship = Ship(self)
 
-        #Задати колір фону
-        self.bg_color = (230, 230, 230)
-
     def run_game(self):
         """Розпочати головний цикл гри"""
         while True:
-            #Слідкувати за діями мишні та клавіатури
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
+            self._check_events()
+            self._update_screen()
 
-                #Наново перемалювати екран при кожній ітерації циклу
-                self.screen.fill(self.settings.bg_color)
-                self.ship.blitme()
-            #Показати останній намальований екран.
-            pygame.display.flip()
+    def _check_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+
+    def _update_screen(self):
+        """Оновити зображення на екрані та перемкнутись на новий екран"""
+        self.screen.fill(self.settings.bg_color)
+        self.ship.blitme()
+
+        pygame.display.flip()
 
 if __name__ == '__main__':
     #Створити екземпляр гри та запустити гру.
