@@ -19,21 +19,22 @@ class AlienInvasion:
 
     def run_game(self):
         """Розпочати головний цикл гри"""
+
+        def _check_events():
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+
+        def _update_screen():
+            """Оновити зображення на екрані та перемкнутись на новий екран"""
+            self.screen.fill(self.settings.bg_color)
+            self.ship.blitme()
+
+            pygame.display.flip()
+
         while True:
-            self._check_events()
-            self._update_screen()
-
-    def _check_events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
-
-    def _update_screen(self):
-        """Оновити зображення на екрані та перемкнутись на новий екран"""
-        self.screen.fill(self.settings.bg_color)
-        self.ship.blitme()
-
-        pygame.display.flip()
+            _check_events()
+            _update_screen()
 
 if __name__ == '__main__':
     #Створити екземпляр гри та запустити гру.
