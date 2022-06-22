@@ -17,7 +17,6 @@ class AlienInvasion:
 
         self.ship = Ship(self)
 
-
         #Задати колір фону
         self.bg_color = (230, 230, 230)
 
