@@ -2,6 +2,8 @@ import sys
 from settings import Settings
 import pygame
 from ship import Ship
+from bullet import Bullet
+
 
 class AlienInvasion:
     """Загальний клас, що керує ресурсами та поведінкою гри"""
@@ -11,12 +13,13 @@ class AlienInvasion:
         pygame.init()
         self.settings = Settings()
 
-        self.screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
         self.settings.screen_width = self.screen.get_rect().width
         self.settings.screen_height = self.screen.get_rect().height
         pygame.display.set_caption("Alien Invasion")
 
         self.ship = Ship(self)
+        self.bullets = pygame.sprite.Group()
 
     def run_game(self):
         """Розпочати головний цикл гри"""
@@ -38,6 +41,8 @@ class AlienInvasion:
                 self.ship.moving_left = True
             elif event.key == pygame.K_q:
                 sys.exit()
+            elif event.key == pygame.K_SPACE:
+                _fire_bullet()
 
         def _check_keyup_events(event):
             """Реагувати, коли клавіша не натиснута"""
@@ -46,10 +51,17 @@ class AlienInvasion:
             elif event.key == pygame.K_LEFT:
                 self.ship.moving_left = False
 
+        def _fire_bullet():
+            """Створити нову кулю та додати її до групи куль"""
+            new_bullet = Bullet(self)
+            self.bullets.add(new_bullet)
+
         def _update_screen():
             """Оновити зображення на екрані та перемкнутись на новий екран"""
             self.screen.fill(self.settings.bg_color)
             self.ship.blitme()
+            for bullet in self.bullets.sprites():
+                bullet.draw_bullet()
 
             pygame.display.flip()
 
@@ -57,6 +69,8 @@ class AlienInvasion:
             _check_events()
             _update_screen()
             self.ship.update()
+            self.bullets.update()
+
 
 if __name__ == '__main__':
     #Створити екземпляр гри та запустити гру.
