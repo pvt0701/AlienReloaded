@@ -53,8 +53,17 @@ class AlienInvasion:
 
         def _fire_bullet():
             """Створити нову кулю та додати її до групи куль"""
-            new_bullet = Bullet(self)
-            self.bullets.add(new_bullet)
+            if len(self.bullets) < self.settings.bullets_allowed:
+                new_bullet = Bullet(self)
+                self.bullets.add(new_bullet)
+
+        def _update_bullet():
+            """Оновити позицію куль та позбавитись старих куль"""
+            self.bullets.update()
+
+            for bullet in self.bullets.copy():
+                if bullet.rect.bottom <= 0:
+                    self.bullets.remove(bullet)
 
         def _update_screen():
             """Оновити зображення на екрані та перемкнутись на новий екран"""
@@ -68,6 +77,7 @@ class AlienInvasion:
         while True:
             _check_events()
             _update_screen()
+            _update_bullet()
             self.ship.update()
             self.bullets.update()
 
