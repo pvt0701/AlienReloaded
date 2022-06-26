@@ -1,4 +1,6 @@
 """Модуль відповідає за налаштування"""
+
+
 class Settings:
     """Клас для збереження всіх налаштувань гри"""
 
@@ -11,3 +13,10 @@ class Settings:
 
         #Налаштування корабля
         self.ship_speed = 1.5
+
+        #Налаштування кулі
+        self.bullet_speed = 1.0
+        self.bullet_width = 3
+        self.bullet_height = 15
+        self.bullet_color = (60, 60, 60)
+        self.bullets_allowed = 3

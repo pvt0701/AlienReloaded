@@ -1,5 +1,6 @@
 import pygame
 
+
 class Ship:
     """Клас для керування кораблем"""
 
