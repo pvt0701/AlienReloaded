@@ -25,6 +25,26 @@ class AlienInvasion:
 
         self._create_fleet()
 
+    def _update_bullets(self):
+        """Оновити позицію куль та позбавитись старих куль"""
+        self.bullets.update()
+
+        for bullet in self.bullets.copy():
+            if bullet.rect.bottom <= 0:
+                self.bullets.remove(bullet)
+
+        self._check_bullet_alien_collisions()
+
+    def _check_bullet_alien_collisions(self):
+        """Реакція на зіткнення куль з прибульцями"""
+        #Видалити всі кулі та прибульців, що зіткнулись
+        collisions = pygame.sprite.groupcollide(
+            self.bullets, self.aliens, True, True)
+        if not self.aliens:
+            #Знищити наявні кулі та створити новий флот
+            self.bullets.empty()
+            self._create_fleet()
+
     def _create_fleet(self):
         """Створити флот прибульців"""
         #Створити прибульців та визначити їхню кількість у ряду
@@ -111,14 +131,6 @@ class AlienInvasion:
                 new_bullet = Bullet(self)
                 self.bullets.add(new_bullet)
 
-        def _update_bullet():
-            """Оновити позицію куль та позбавитись старих куль"""
-            self.bullets.update()
-
-            for bullet in self.bullets.copy():
-                if bullet.rect.bottom <= 0:
-                    self.bullets.remove(bullet)
-
         def _update_screen():
             """Оновити зображення на екрані та перемкнутись на новий екран"""
             self.screen.fill(self.settings.bg_color)
@@ -132,10 +144,10 @@ class AlienInvasion:
         while True:
             _check_events()
             _update_screen()
-            _update_bullet()
             self.ship.update()
             self.bullets.update()
             self._update_aliens()
+            self._update_bullets()
 
 
 if __name__ == '__main__':
