@@ -54,6 +54,27 @@ class AlienInvasion:
         alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
         self.aliens.add(alien)
 
+    def _update_aliens(self):
+        """Перевірити чи флот знаходиться на краю,
+        тоді оновити позиції всіх прибульців флоту"""
+        self._check_fleet_edges()
+        self.aliens.update()
+
+    def _check_fleet_edges(self):
+        """Реагує відповідно до того, чи досяг котрийсь
+        із прибульців краю екрана"""
+        for alien in self.aliens.sprites():
+            if alien.check_edges():
+                self._change_fleet_direction()
+                break
+
+
+    def _change_fleet_direction(self):
+        """Спуск всього флоту та зміна його напрямку"""
+        for alien in self.aliens.sprites():
+            alien.rect.y += self.settings.fleet_drop_speed
+        self.settings.fleet_direction *= -1
+
     def run_game(self):
         """Розпочати головний цикл гри"""
 
@@ -114,6 +135,7 @@ class AlienInvasion:
             _update_bullet()
             self.ship.update()
             self.bullets.update()
+            self._update_aliens()
 
 
 if __name__ == '__main__':
