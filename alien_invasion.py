@@ -6,6 +6,7 @@ from bullet import Bullet
 from alien import Alien
 from time import sleep
 from game_stats import GameStats
+from button import Button
 
 
 class AlienInvasion:
@@ -29,6 +30,9 @@ class AlienInvasion:
         self.aliens = pygame.sprite.Group()
 
         self._create_fleet()
+
+        #Створити кнопку Play
+        self.play_button = Button(self, "Play")
 
     def _update_bullets(self):
         """Оновити позицію куль та позбавитись старих куль"""
@@ -175,6 +179,10 @@ class AlienInvasion:
             for bullet in self.bullets.sprites():
                 bullet.draw_bullet()
             self.aliens.draw(self.screen)
+
+            #Намалювати кнопку плей, якщо гра не активна
+            if not self.stats.game_active:
+                self.play_button.draw_button()
 
             pygame.display.flip()
 
