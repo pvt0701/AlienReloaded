@@ -4,6 +4,9 @@ import pygame
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
+from time import sleep
+from game_stats import GameStats
+from button import Button
 
 
 class AlienInvasion:
@@ -19,11 +22,46 @@ class AlienInvasion:
         self.settings.screen_height = self.screen.get_rect().height
         pygame.display.set_caption("Alien Invasion")
 
+        #Створити екземпляр для збереження ігрової статистики
+        self.stats = GameStats(self)
+
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
 
         self._create_fleet()
+
+        #Створити кнопку Play
+        self.play_button = Button(self, "Play")
+
+    def _update_bullets(self):
+        """Оновити позицію куль та позбавитись старих куль"""
+        self.bullets.update()
+
+        for bullet in self.bullets.copy():
+            if bullet.rect.bottom <= 0:
+                self.bullets.remove(bullet)
+
+        self._check_bullet_alien_collisions()
+
+    def _check_bullet_alien_collisions(self):
+        """Реакція на зіткнення куль з прибульцями"""
+        #Видалити всі кулі та прибульців, що зіткнулись
+        collisions = pygame.sprite.groupcollide(
+            self.bullets, self.aliens, True, True)
+        if not self.aliens:
+            #Знищити наявні кулі та створити новий флот
+            self.bullets.empty()
+            self._create_fleet()
+
+    def _check_aliens_bottom(self):
+        """Перевірити чи не досяг якийсь прибулець нижнього краю екрана."""
+        screen_rect = self.screen.get_rect()
+        for alien in self.aliens.sprites():
+            if alien.rect.bottom >= screen_rect.bottom:
+                #Зреагувати так ніби корабель було підбито
+                self._ship_hit()
+                break
 
     def _create_fleet(self):
         """Створити флот прибульців"""
@@ -59,6 +97,29 @@ class AlienInvasion:
         тоді оновити позиції всіх прибульців флоту"""
         self._check_fleet_edges()
         self.aliens.update()
+
+        #Шукати зіткнення куль із прибульцями
+        if pygame.sprite.spritecollideany(self.ship, self.aliens):
+            self._ship_hit()
+
+        #Шукати, чи котрийсь із прибульців досяг нижнього краю екрана
+        self._check_aliens_bottom()
+
+    def _ship_hit(self):
+        """Реагувати на зіткнення прибульця з кораблем"""
+        if self.stats.ships_left > 0:
+            #Зменшити ships_left
+            self.stats.ships_left -= 1
+            #Позбавитись надлишку прибульців та куль
+            self.aliens.empty()
+            self.bullets.empty()
+            #Створити новий флот та відцентрувати корабель
+            self._create_fleet()
+            self.bullets.empty()
+            #Пауза
+            sleep(0.5)
+        else:
+            self.stats.game_active = False
 
     def _check_fleet_edges(self):
         """Реагує відповідно до того, чи досяг котрийсь
@@ -111,14 +172,6 @@ class AlienInvasion:
                 new_bullet = Bullet(self)
                 self.bullets.add(new_bullet)
 
-        def _update_bullet():
-            """Оновити позицію куль та позбавитись старих куль"""
-            self.bullets.update()
-
-            for bullet in self.bullets.copy():
-                if bullet.rect.bottom <= 0:
-                    self.bullets.remove(bullet)
-
         def _update_screen():
             """Оновити зображення на екрані та перемкнутись на новий екран"""
             self.screen.fill(self.settings.bg_color)
@@ -127,15 +180,20 @@ class AlienInvasion:
                 bullet.draw_bullet()
             self.aliens.draw(self.screen)
 
+            #Намалювати кнопку плей, якщо гра не активна
+            if not self.stats.game_active:
+                self.play_button.draw_button()
+
             pygame.display.flip()
 
         while True:
             _check_events()
             _update_screen()
-            _update_bullet()
-            self.ship.update()
             self.bullets.update()
-            self._update_aliens()
+            if self.stats.game_active:
+                self.ship.update()
+                self._update_aliens()
+                self._update_bullets()
 
 
 if __name__ == '__main__':
