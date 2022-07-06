@@ -7,6 +7,7 @@ from alien import Alien
 from time import sleep
 from game_stats import GameStats
 from button import Button
+from scoreboard import Scoreboard
 
 
 class AlienInvasion:
@@ -24,6 +25,7 @@ class AlienInvasion:
 
         #Створити екземпляр для збереження ігрової статистики
         self.stats = GameStats(self)
+        self.sb = Scoreboard(self)
 
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
@@ -205,6 +207,9 @@ class AlienInvasion:
             for bullet in self.bullets.sprites():
                 bullet.draw_bullet()
             self.aliens.draw(self.screen)
+
+            #Намалювати інформацію про рахунок
+            self.sb.show_score()
 
             #Намалювати кнопку плей, якщо гра не активна
             if not self.stats.game_active:
