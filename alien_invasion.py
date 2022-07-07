@@ -7,6 +7,7 @@ from alien import Alien
 from time import sleep
 from game_stats import GameStats
 from button import Button
+from scoreboard import Scoreboard
 
 
 class AlienInvasion:
@@ -24,6 +25,7 @@ class AlienInvasion:
 
         #Створити екземпляр для збереження ігрової статистики
         self.stats = GameStats(self)
+        self.sb = Scoreboard(self)
 
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
@@ -44,6 +46,27 @@ class AlienInvasion:
 
         self._check_bullet_alien_collisions()
 
+    def _check_play_button(self, mouse_pos):
+        """Розпочати нову гру, коли користувач натисне кнопку Play"""
+        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+        if button_clicked and not self.stats.game_active:
+            #Анулювати статистику гри.
+            self.settings.initialize_dynamic_settings()
+            #Анулювати гральну статистику
+            self.stats.reset_stats()
+            self.stats.game_active = True
+
+            #Позбавитись надлишку прибульців та куль
+            self.aliens.empty()
+            self.bullets.empty()
+
+            #Створити новий флот та відцентрувати корабель
+            self._create_fleet()
+            self.ship.center_ship()
+
+            #Приховати курсор миші
+            pygame.mouse.set_visible(False)
+
     def _check_bullet_alien_collisions(self):
         """Реакція на зіткнення куль з прибульцями"""
         #Видалити всі кулі та прибульців, що зіткнулись
@@ -53,6 +76,7 @@ class AlienInvasion:
             #Знищити наявні кулі та створити новий флот
             self.bullets.empty()
             self._create_fleet()
+            self.settings.increase_speed()
 
     def _check_aliens_bottom(self):
         """Перевірити чи не досяг якийсь прибулець нижнього краю екрана."""
@@ -120,6 +144,7 @@ class AlienInvasion:
             sleep(0.5)
         else:
             self.stats.game_active = False
+            pygame.mouse.set_visible(True)
 
     def _check_fleet_edges(self):
         """Реагує відповідно до того, чи досяг котрийсь
@@ -143,6 +168,9 @@ class AlienInvasion:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    self._check_play_button(mouse_pos)
                 elif event.type == pygame.KEYDOWN:
                     _check_keydown_events(event)
                 elif event.type == pygame.KEYUP:
@@ -179,6 +207,9 @@ class AlienInvasion:
             for bullet in self.bullets.sprites():
                 bullet.draw_bullet()
             self.aliens.draw(self.screen)
+
+            #Намалювати інформацію про рахунок
+            self.sb.show_score()
 
             #Намалювати кнопку плей, якщо гра не активна
             if not self.stats.game_active:
